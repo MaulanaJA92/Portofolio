@@ -81,7 +81,7 @@ useEffect(() => {
 
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 overflow-hidden z-50">
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black overflow-hidden z-50">
       {/* Kolom oranye sejak awal */}
       <div className="absolute top-0 left-0 w-full h-full flex z-0">
         {Array.from({ length: columns }).map((_, i) => (

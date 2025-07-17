@@ -34,7 +34,7 @@ const FadeSection = ({ direction = 'left', children }) => {
   return (
   <div
     ref={sectionRef}
-    className="my-32 p-10 bg-[#6c2716] text-white rounded-lg shadow-lg w-full flex justify-start"
+    className="my-32 p-10 bg-[#6c2716] text-white rounded-lg shadow-lg w-full flex justify-start z-10"
   >
     {children}
   </div>
