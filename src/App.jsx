@@ -23,6 +23,7 @@ function App() {
           <Sidebar />
           <Hero />
           <Aboutme />
+           <Hero />
         </>
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FaReact,
   FaNodeJs,
@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { gsap } from "gsap";
 
+// Daftar teknologi dan warnanya
 const techIcons = [
   { icon: <FaReact />, name: "React", color: "text-cyan-400" },
   { icon: <FaNodeJs />, name: "Node.js", color: "text-green-600" },
@@ -20,45 +21,73 @@ const techIcons = [
   { icon: <FaGitAlt />, name: "Git", color: "text-red-500" },
 ];
 
-const HorizontalLogoCarousel = () => {
+const HorizontalLogoCarousel = ({ move = "left", speed = 20 }) => {
+  const containerRef = useRef(null);
   const trackRef = useRef(null);
+  const tweenRef = useRef(null);
+  const [shouldLoop, setShouldLoop] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const track = trackRef.current;
+
+    if (!container || !track) return;
+
+    const checkOverflow = () => {
+      const isOverflowing = track.scrollWidth > container.offsetWidth;
+      setShouldLoop(isOverflowing);
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, []);
 
   useEffect(() => {
     const track = trackRef.current;
+    if (!track || !shouldLoop) return;
 
-    if (!track) return;
+    const totalWidth = track.scrollWidth / 2;
+    const direction = move === "left" ? -1 : 1;
 
-    const totalWidth = track.scrollWidth / 2; // Karena kita duplikat 2x
-
-    const tween = gsap.to(track, {
-      x: `-=${totalWidth}`,
-      duration: 20,
+    tweenRef.current = gsap.to(track, {
+      x: direction * totalWidth * -1,
+      duration: speed,
       ease: "linear",
       repeat: -1,
       modifiers: {
-        x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+        x: gsap.utils.unitize((x) => {
+          const raw = parseFloat(x);
+          return direction === -1
+            ? raw % totalWidth
+            : ((raw % totalWidth) + totalWidth) % totalWidth;
+        }),
       },
     });
 
-    return () => {
-      tween.kill();
-    };
-  }, []);
+    return () => tweenRef.current?.kill();
+  }, [move, speed, shouldLoop]);
+
+  const iconsToRender = shouldLoop ? [...techIcons, ...techIcons] : techIcons;
 
   return (
-    <div className="relative w-full overflow-hidden bg-black py-10 select-none">
+    <div
+      ref={containerRef}
+      className="relative w-full overflow-hidden bg-black p-0 select-none"
+    >
       <div
         ref={trackRef}
-        className="flex gap-8 whitespace-nowrap will-change-transform"
-        style={{ display: "inline-flex" }}
+        className={`flex gap-8 whitespace-nowrap will-change-transform ${
+          shouldLoop ? "" : "justify-center"
+        }`}
       >
-        {[...techIcons, ...techIcons].map((tech, index) => (
+        {iconsToRender.map((tech, index) => (
           <div
             key={index}
             className="min-w-[100px] h-[100px] flex flex-col items-center justify-center text-white pointer-events-none"
           >
             <div className={`text-5xl ${tech.color}`}>{tech.icon}</div>
-            <span className="mt-2 text-sm text-white">{tech.name}</span>
+            <span className="mt-2 text-sm">{tech.name}</span>
           </div>
         ))}
       </div>
